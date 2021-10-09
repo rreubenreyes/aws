@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "com.reubenreyes.tfstate"
-    key    = "hub"
+    key    = "applications/minecraft_server"
     region = "us-west-2"
   }
 }
@@ -16,27 +16,15 @@ provider "aws" {
   region = "us-west-2"
   default_tags {
     tags = {
-      Account   = "hub"
-      ManagedBy = "hub"
+      Account     = "hub"
+      Application = "minecraft_server"
+      ManagedBy   = "applications/minecraft_server"
     }
   }
 }
 
 locals {
   git = {
-    root = "${path.root}/../.."
-  }
-  aws = {
-    s3 = {
-      namespace_prefix = "com.reubenreyes"
-    }
-  }
-}
-
-output aws {
-  value = {
-    s3 = {
-      namespace_prefix = local.aws.s3.namespace_prefix
-    }
+    root = "${path.root}/../../../../"
   }
 }
