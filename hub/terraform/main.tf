@@ -5,7 +5,6 @@ terraform {
       version = "3.62.0"
     }
   }
-
   backend "s3" {
     bucket = "com.reubenreyes.tfstate"
     key    = "hub"
@@ -25,7 +24,7 @@ provider "aws" {
 
 locals {
   git = {
-    root = "${path.root}/.."
+    root = "${path.root}/../.."
   }
   aws = {
     s3 = {
