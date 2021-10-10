@@ -1,1 +1,0 @@
-{"filename": "builds/b47167a4affe01eee1c20320fe82fa2d7123db20fbcc111c574962c7e3366765.zip", "runtime": "go1.x", "artifacts_dir": "builds", "build_plan": [["zip", "./../lambda/cmd/instance/stop", null]]}
