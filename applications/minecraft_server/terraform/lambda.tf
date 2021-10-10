@@ -9,20 +9,21 @@ locals {
       }
       source_path = {
         commands = [
-          "GOOS=linux go build main.go",
-          ":zip ."
+          "GOARCH=amd64 GOOS=linux go build main.go",
+          ":zip main"
         ]
-        patterns = ["main"]
+        patterns = ["main", "!go.mod", "!go.sum", "!**/*.go"]
       }
     }
   }
 }
+
 module "start_instance" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "${local.lambda.prefix}_start_instance"
   description   = "starts the minecraft server ec2 instance"
-  handler       = "main.go"
+  handler       = "main"
   runtime       = "go1.x"
   publish       = true
 
@@ -36,6 +37,11 @@ module "start_instance" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  policy_jsons = [
+    data.aws_iam_policy_document.describe_instances.json,
+    data.aws_iam_policy_document.start_minecraft_server_instance.json,
+  ]
+
   environment_variables = {
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
@@ -46,7 +52,7 @@ module "stop_instance" {
 
   function_name = "${local.lambda.prefix}_stop_instance"
   description   = "stops the minecraft server ec2 instance"
-  handler       = "main.go"
+  handler       = "main"
   runtime       = "go1.x"
   publish       = true
 
@@ -60,6 +66,11 @@ module "stop_instance" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  policy_jsons = [
+    data.aws_iam_policy_document.describe_instances.json,
+    data.aws_iam_policy_document.stop_minecraft_server_instance.json,
+  ]
+
   environment_variables = {
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
@@ -70,7 +81,7 @@ module "get_instance_uptime" {
 
   function_name = "${local.lambda.prefix}_get_instance_uptime"
   description   = "gets uptime details for the minecraft server ec2 instance"
-  handler       = "main.go"
+  handler       = "main"
   runtime       = "go1.x"
   publish       = true
 
@@ -84,6 +95,10 @@ module "get_instance_uptime" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  policy_jsons = [
+    data.aws_iam_policy_document.describe_instances.json,
+  ]
+
   environment_variables = {
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
@@ -94,7 +109,7 @@ module "get_instance_ip" {
 
   function_name = "${local.lambda.prefix}_get_instance_ip"
   description   = "gets the ip of the minecraft server ec2 instance"
-  handler       = "main.go"
+  handler       = "main"
   runtime       = "go1.x"
   publish       = true
 
@@ -107,6 +122,10 @@ module "get_instance_ip" {
   store_on_s3 = true
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
+
+  policy_jsons = [
+    data.aws_iam_policy_document.describe_instances.json,
+  ]
 
   environment_variables = {
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id

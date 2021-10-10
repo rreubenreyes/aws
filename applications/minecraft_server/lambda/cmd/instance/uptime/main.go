@@ -24,7 +24,7 @@ func serverInstance(ctx context.Context) (types.Instance, error) {
 		InstanceIds: []string{instanceId},
 	})
 	if err != nil {
-		log.Println("error retriving instance details")
+		log.Println("error retrieving instance details")
 		log.Println(err)
 		return types.Instance{}, err
 	}
