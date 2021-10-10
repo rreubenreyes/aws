@@ -8,18 +8,25 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 var (
-	region     = os.Getenv("AWS_REGION")
-	instanceId = os.Getenv("MINECRAFT_SERVER_INSTANCE_ID")
+	key          = os.Getenv("AWS_ACCESS_KEY_ID")
+	secret       = os.Getenv("AWS_SECRET_KEY_ID")
+	sessionToken = os.Getenv("AWS_SESSION_TOKEN")
+	region       = os.Getenv("AWS_REGION")
+	instanceId   = os.Getenv("MINECRAFT_SERVER_INSTANCE_ID")
+	svc          = ec2.New(ec2.Options{
+		Region:      region,
+		Credentials: credentials.NewStaticCredentialsProvider(key, secret, sessionToken),
+	})
 )
 
 func serverInstance(ctx context.Context) (types.Instance, error) {
-	client := ec2.New(ec2.Options{Region: region})
-	result, err := client.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
+	result, err := svc.DescribeInstances(ctx, &ec2.DescribeInstancesInput{
 		InstanceIds: []string{instanceId},
 	})
 	if err != nil {

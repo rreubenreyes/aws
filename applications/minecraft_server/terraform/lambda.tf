@@ -35,6 +35,8 @@ module "start_instance" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  attach_policy_jsons    = true
+  number_of_policy_jsons = 2
   policy_jsons = [
     data.aws_iam_policy_document.describe_instances.json,
     data.aws_iam_policy_document.start_minecraft_server_instance.json,
@@ -63,6 +65,8 @@ module "stop_instance" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  attach_policy_jsons    = true
+  number_of_policy_jsons = 2
   policy_jsons = [
     data.aws_iam_policy_document.describe_instances.json,
     data.aws_iam_policy_document.stop_minecraft_server_instance.json,
@@ -91,6 +95,8 @@ module "get_instance_uptime" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  attach_policy_jsons    = true
+  number_of_policy_jsons = 1
   policy_jsons = [
     data.aws_iam_policy_document.describe_instances.json,
   ]
@@ -118,6 +124,8 @@ module "get_instance_ip" {
   s3_bucket   = local.lambda.deployment.s3.bucket
   s3_prefix   = local.lambda.deployment.s3.prefix
 
+  attach_policy_jsons    = true
+  number_of_policy_jsons = 1
   policy_jsons = [
     data.aws_iam_policy_document.describe_instances.json,
   ]
