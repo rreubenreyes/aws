@@ -35,11 +35,11 @@ func serverInstance(ctx context.Context) (types.Instance, error) {
 		log.Println(err)
 		return types.Instance{}, err
 	}
-	if len(result.Reservations) != 0 {
+	if len(result.Reservations) != 1 {
 		log.Println("reservation not found")
 		return types.Instance{}, errors.New("server could not be found")
 	}
-	if len(result.Reservations[0].Instances) != 0 {
+	if len(result.Reservations[0].Instances) != 1 {
 		log.Println("reservation present but instance not found")
 		return types.Instance{}, errors.New("server could not be found")
 	}
