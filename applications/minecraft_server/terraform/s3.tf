@@ -1,5 +1,11 @@
+locals {
+  s3 = {
+    bucket = "${data.terraform_remote_state.hub.outputs.aws.s3.namespace_prefix}.applications.minecraft-server"
+  }
+}
+
 resource "aws_s3_bucket" "deployment_artifacts" {
-  bucket = local.s3.namespace_prefix
+  bucket = local.s3.bucket
   acl    = "private"
 }
 

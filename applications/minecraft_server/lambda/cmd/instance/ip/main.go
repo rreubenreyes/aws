@@ -39,7 +39,7 @@ func serverInstance(ctx context.Context) (types.Instance, error) {
 	return result.Reservations[0].Instances[0], nil
 }
 
-func ip(ctx context.Context) (string, error) {
+func IP(ctx context.Context) (string, error) {
 	instance, err := serverInstance(ctx)
 	if err != nil {
 		return "", err
@@ -61,5 +61,5 @@ func ip(ctx context.Context) (string, error) {
 }
 
 func main() {
-	lambda.Start(ip)
+	lambda.Start(IP)
 }

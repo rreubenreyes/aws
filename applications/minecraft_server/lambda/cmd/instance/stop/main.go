@@ -39,7 +39,7 @@ func serverInstance(ctx context.Context) (types.Instance, error) {
 	return result.Reservations[0].Instances[0], nil
 }
 
-func stop(ctx context.Context) (string, error) {
+func Stop(ctx context.Context) (string, error) {
 	instance, err := serverInstance(ctx)
 	if err != nil {
 		return "", err
@@ -67,5 +67,5 @@ func stop(ctx context.Context) (string, error) {
 }
 
 func main() {
-	lambda.Start(stop)
+	lambda.Start(Stop)
 }

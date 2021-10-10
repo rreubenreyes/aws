@@ -36,22 +36,4 @@ locals {
   git = {
     root = "${path.root}/../../../../"
   }
-  ec2 = {
-    ami = {
-      ubuntu_2004_lts_x86 = "ami-03d5c68bab01f3496"
-    }
-  }
-  lambda = {
-    root = "${path.root}/../lambda"
-    prefix = "mc"
-    deployment = {
-      s3 = {
-        bucket = aws_s3_bucket.deployment_artifacts.id
-        prefix = "lambda"
-      }
-    }
-  }
-  s3 = {
-    namespace_prefix = "${data.terraform_remote_state.hub.outputs.aws.s3.namespace_prefix}.applications.minecraft-server"
-  }
 }

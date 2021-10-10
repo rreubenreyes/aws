@@ -1,4 +1,23 @@
-module "cmd_instance_start" {
+locals {
+  lambda = {
+    root   = "${path.root}/../lambda"
+    prefix = "mc"
+    deployment = {
+      s3 = {
+        bucket = aws_s3_bucket.deployment_artifacts.id
+        prefix = "lambda"
+      }
+      source_path = {
+        commands = [
+          "GOOS=linux go build main.go",
+          ":zip ."
+        ]
+        patterns = ["main"]
+      }
+    }
+  }
+}
+module "start_instance" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "${local.lambda.prefix}_start_instance"
@@ -7,7 +26,11 @@ module "cmd_instance_start" {
   runtime       = "go1.x"
   publish       = true
 
-  source_path = "${local.lambda.root}/cmd/instance/start"
+  source_path = [{
+    path     = "${local.lambda.root}/cmd/instance/start"
+    commands = local.lambda.deployment.source_path.commands
+    patterns = local.lambda.deployment.source_path.patterns
+  }]
 
   store_on_s3 = true
   s3_bucket   = local.lambda.deployment.s3.bucket
@@ -18,7 +41,7 @@ module "cmd_instance_start" {
   }
 }
 
-module "cmd_instance_stop" {
+module "stop_instance" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "${local.lambda.prefix}_stop_instance"
@@ -27,7 +50,11 @@ module "cmd_instance_stop" {
   runtime       = "go1.x"
   publish       = true
 
-  source_path = "${local.lambda.root}/cmd/instance/stop"
+  source_path = [{
+    path     = "${local.lambda.root}/cmd/instance/stop"
+    commands = local.lambda.deployment.source_path.commands
+    patterns = local.lambda.deployment.source_path.patterns
+  }]
 
   store_on_s3 = true
   s3_bucket   = local.lambda.deployment.s3.bucket
@@ -38,7 +65,7 @@ module "cmd_instance_stop" {
   }
 }
 
-module "cmd_instance_uptime" {
+module "get_instance_uptime" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "${local.lambda.prefix}_get_instance_uptime"
@@ -47,7 +74,11 @@ module "cmd_instance_uptime" {
   runtime       = "go1.x"
   publish       = true
 
-  source_path = "${local.lambda.root}/cmd/instance/uptime"
+  source_path = [{
+    path     = "${local.lambda.root}/cmd/instance/uptime"
+    commands = local.lambda.deployment.source_path.commands
+    patterns = local.lambda.deployment.source_path.patterns
+  }]
 
   store_on_s3 = true
   s3_bucket   = local.lambda.deployment.s3.bucket
@@ -58,7 +89,7 @@ module "cmd_instance_uptime" {
   }
 }
 
-module "cmd_instance_ip" {
+module "get_instance_ip" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "${local.lambda.prefix}_get_instance_ip"
@@ -67,7 +98,11 @@ module "cmd_instance_ip" {
   runtime       = "go1.x"
   publish       = true
 
-  source_path = "${local.lambda.root}/cmd/instance/ip"
+  source_path = [{
+    path     = "${local.lambda.root}/cmd/instance/ip"
+    commands = local.lambda.deployment.source_path.commands
+    patterns = local.lambda.deployment.source_path.patterns
+  }]
 
   store_on_s3 = true
   s3_bucket   = local.lambda.deployment.s3.bucket

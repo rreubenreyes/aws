@@ -40,7 +40,7 @@ func serverInstance(ctx context.Context) (types.Instance, error) {
 	return result.Reservations[0].Instances[0], nil
 }
 
-func uptime(ctx context.Context) (string, error) {
+func Uptime(ctx context.Context) (string, error) {
 	instance, err := serverInstance(ctx)
 	if err != nil {
 		return "", err
@@ -59,5 +59,5 @@ func uptime(ctx context.Context) (string, error) {
 }
 
 func main() {
-	lambda.Start(uptime)
+	lambda.Start(Uptime)
 }
