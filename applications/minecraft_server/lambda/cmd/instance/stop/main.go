@@ -10,15 +10,15 @@ import (
 )
 
 var (
-	region      = os.Getenv("AWS_REGION")
-	instance_id = os.Getenv("MINECRAFT_SERVER_INSTANCE_ID")
+	region     = os.Getenv("AWS_REGION")
+	instanceId = os.Getenv("MINECRAFT_SERVER_INSTANCE_ID")
 )
 
 func handler(ctx context.Context) error {
 	client := ec2.New(ec2.Options{Region: region})
 
 	_, err := client.StopInstances(ctx, &ec2.StopInstancesInput{
-		InstanceIds: []string{instance_id},
+		InstanceIds: []string{instanceId},
 	})
 	if err != nil {
 		log.Println("could not stop instance")
