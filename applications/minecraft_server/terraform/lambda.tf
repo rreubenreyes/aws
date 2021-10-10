@@ -12,7 +12,6 @@ locals {
           "GOARCH=amd64 GOOS=linux go build main.go",
           ":zip main"
         ]
-        patterns = ["main", "!go.mod", "!go.sum", "!**/*.go"]
       }
     }
   }
@@ -30,7 +29,6 @@ module "start_instance" {
   source_path = [{
     path     = "${local.lambda.root}/cmd/instance/start"
     commands = local.lambda.deployment.source_path.commands
-    patterns = local.lambda.deployment.source_path.patterns
   }]
 
   store_on_s3 = true
@@ -59,7 +57,6 @@ module "stop_instance" {
   source_path = [{
     path     = "${local.lambda.root}/cmd/instance/stop"
     commands = local.lambda.deployment.source_path.commands
-    patterns = local.lambda.deployment.source_path.patterns
   }]
 
   store_on_s3 = true
@@ -88,7 +85,6 @@ module "get_instance_uptime" {
   source_path = [{
     path     = "${local.lambda.root}/cmd/instance/uptime"
     commands = local.lambda.deployment.source_path.commands
-    patterns = local.lambda.deployment.source_path.patterns
   }]
 
   store_on_s3 = true
@@ -116,7 +112,6 @@ module "get_instance_ip" {
   source_path = [{
     path     = "${local.lambda.root}/cmd/instance/ip"
     commands = local.lambda.deployment.source_path.commands
-    patterns = local.lambda.deployment.source_path.patterns
   }]
 
   store_on_s3 = true
