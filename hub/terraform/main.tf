@@ -26,17 +26,15 @@ locals {
   git = {
     root = "${path.root}/../.."
   }
-  aws = {
-    s3 = {
-      namespace_prefix = "com.reubenreyes"
-    }
+  s3 = {
+    namespace_prefix = "com.reubenreyes"
   }
 }
 
-output aws {
+output "aws" {
   value = {
     s3 = {
-      namespace_prefix = local.aws.s3.namespace_prefix
+      namespace_prefix = local.s3.namespace_prefix
     }
   }
 }

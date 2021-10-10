@@ -1,0 +1,1 @@
+{"filename": "builds/78adfb26f2946e327bce6d431869b4e53b984152721f265f14d91d0c3e3e293e.zip", "runtime": "go1.x", "artifacts_dir": "builds", "build_plan": [["zip", "./../lambda/cmd/instance/uptime", null]]}

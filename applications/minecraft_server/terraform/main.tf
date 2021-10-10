@@ -27,4 +27,10 @@ locals {
   git = {
     root = "${path.root}/../../../../"
   }
+  s3 = {
+    namespace_prefix = "com.reubenreyes.applications.minecraft_server"
+  }
+  lambda = {
+    root = "${path.root}/../lambda"
+  }
 }
