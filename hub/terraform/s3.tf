@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "tfstate" {
-  bucket = "${local.aws.s3.namespace_prefix}.tfstate"
+  bucket = "${local.s3.namespace_prefix}.tfstate"
   acl    = "private"
 }
 
