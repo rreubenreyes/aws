@@ -25,6 +25,11 @@ resource "aws_iam_user" "steven" {
   path = "/people/"
 }
 
+resource "aws_iam_user" "ian" {
+  name = "ian"
+  path = "/people/"
+}
+
 ## user policy attachments
 resource "aws_iam_user_policy_attachment" "admins" {
   for_each = toset([

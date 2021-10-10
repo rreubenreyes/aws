@@ -1,7 +1,7 @@
 module "cmd_instance_start" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "cmd_instance_start"
+  function_name = "${local.lambda.prefix}_start_instance"
   description   = "starts the minecraft server ec2 instance"
   handler       = "main.go"
   runtime       = "go1.x"
@@ -10,10 +10,10 @@ module "cmd_instance_start" {
   source_path = "${local.lambda.root}/cmd/instance/start"
 
   store_on_s3 = true
-  s3_bucket   = aws_s3_bucket.lambda.id
+  s3_bucket   = local.lambda.deployment.s3.bucket
+  s3_prefix   = local.lambda.deployment.s3.prefix
 
   environment_variables = {
-    AWS_REGION                   = "us-west-2"
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
 }
@@ -21,7 +21,7 @@ module "cmd_instance_start" {
 module "cmd_instance_stop" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "cmd_instance_stop"
+  function_name = "${local.lambda.prefix}_stop_instance"
   description   = "stops the minecraft server ec2 instance"
   handler       = "main.go"
   runtime       = "go1.x"
@@ -30,10 +30,10 @@ module "cmd_instance_stop" {
   source_path = "${local.lambda.root}/cmd/instance/stop"
 
   store_on_s3 = true
-  s3_bucket   = aws_s3_bucket.lambda.id
+  s3_bucket   = local.lambda.deployment.s3.bucket
+  s3_prefix   = local.lambda.deployment.s3.prefix
 
   environment_variables = {
-    AWS_REGION                   = "us-west-2"
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
 }
@@ -41,7 +41,7 @@ module "cmd_instance_stop" {
 module "cmd_instance_uptime" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "cmd_instance_uptime"
+  function_name = "${local.lambda.prefix}_get_instance_uptime"
   description   = "gets uptime details for the minecraft server ec2 instance"
   handler       = "main.go"
   runtime       = "go1.x"
@@ -50,10 +50,10 @@ module "cmd_instance_uptime" {
   source_path = "${local.lambda.root}/cmd/instance/uptime"
 
   store_on_s3 = true
-  s3_bucket   = aws_s3_bucket.lambda.id
+  s3_bucket   = local.lambda.deployment.s3.bucket
+  s3_prefix   = local.lambda.deployment.s3.prefix
 
   environment_variables = {
-    AWS_REGION                   = "us-west-2"
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
 }
@@ -61,7 +61,7 @@ module "cmd_instance_uptime" {
 module "cmd_instance_ip" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "cmd_instance_ip"
+  function_name = "${local.lambda.prefix}_get_instance_ip"
   description   = "gets the ip of the minecraft server ec2 instance"
   handler       = "main.go"
   runtime       = "go1.x"
@@ -70,10 +70,10 @@ module "cmd_instance_ip" {
   source_path = "${local.lambda.root}/cmd/instance/ip"
 
   store_on_s3 = true
-  s3_bucket   = aws_s3_bucket.lambda.id
+  s3_bucket   = local.lambda.deployment.s3.bucket
+  s3_prefix   = local.lambda.deployment.s3.prefix
 
   environment_variables = {
-    AWS_REGION                   = "us-west-2"
     MINECRAFT_SERVER_INSTANCE_ID = module.minecraft_server.id
   }
 }

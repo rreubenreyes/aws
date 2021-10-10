@@ -23,14 +23,35 @@ provider "aws" {
   }
 }
 
+data "terraform_remote_state" "hub" {
+  backend = "s3"
+  config = {
+    bucket = "com.reubenreyes.tfstate"
+    key    = "hub"
+    region = "us-west-2"
+  }
+}
+
 locals {
   git = {
     root = "${path.root}/../../../../"
   }
-  s3 = {
-    namespace_prefix = "com.reubenreyes.applications.minecraft_server"
+  ec2 = {
+    ami = {
+      ubuntu_2004_lts_x86 = "ami-03d5c68bab01f3496"
+    }
   }
   lambda = {
     root = "${path.root}/../lambda"
+    prefix = "mc"
+    deployment = {
+      s3 = {
+        bucket = aws_s3_bucket.deployment_artifacts.id
+        prefix = "lambda"
+      }
+    }
+  }
+  s3 = {
+    namespace_prefix = "${data.terraform_remote_state.hub.outputs.aws.s3.namespace_prefix}.applications.minecraft-server"
   }
 }

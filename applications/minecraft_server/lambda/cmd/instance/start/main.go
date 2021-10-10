@@ -44,10 +44,6 @@ func start(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if *instance.State.Code == 16 {
-		log.Println("instance is already running")
-		return "server is already running", nil
-	}
 
 	switch *instance.State.Code {
 	case 0: // pending

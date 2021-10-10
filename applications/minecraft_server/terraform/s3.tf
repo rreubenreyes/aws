@@ -1,10 +1,10 @@
-resource "aws_s3_bucket" "lambda" {
-  bucket = "${local.s3.namespace_prefix}.lambda"
+resource "aws_s3_bucket" "deployment_artifacts" {
+  bucket = local.s3.namespace_prefix
   acl    = "private"
 }
 
-resource "aws_s3_bucket_public_access_block" "lambda" {
-  bucket = aws_s3_bucket.lambda.id
+resource "aws_s3_bucket_public_access_block" "deployment_artifacts" {
+  bucket = aws_s3_bucket.deployment_artifacts.id
 
   block_public_acls       = true
   block_public_policy     = true

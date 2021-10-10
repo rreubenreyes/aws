@@ -1,11 +1,3 @@
-locals {
-  ec2 = {
-    ami = {
-      ubuntu_2004_lts_x86 = "ami-03d5c68bab01f3496"
-    }
-  }
-}
-
 module "minecraft_server" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "3.2.0"
@@ -14,7 +6,7 @@ module "minecraft_server" {
   instance_type          = "m5a.large"
   ami                    = local.ec2.ami.ubuntu_2004_lts_x86
   key_name               = aws_key_pair.minecraft_server.id
-  vpc_security_group_ids = [aws_security_group.server_instance.id]
+  vpc_security_group_ids = [aws_security_group.minecraft_server.id]
 
 
   disable_api_termination = true
