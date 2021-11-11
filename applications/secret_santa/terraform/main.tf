@@ -33,6 +33,17 @@ data "terraform_remote_state" "hub" {
   }
 }
 
+variable "discord_channel_id" {
+  description = "Discord channel on which to notify"
+  type        = string
+  default = "735641786306920471"
+}
+
+variable "draw_url" {
+  description = "URL of the DrawNames page"
+  type        = string
+}
+
 locals {
   metadata = {
     prefix = "ss2021"

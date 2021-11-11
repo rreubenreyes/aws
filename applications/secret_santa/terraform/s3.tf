@@ -1,6 +1,6 @@
 locals {
   s3 = {
-    bucket = "${data.terraform_remote_state.hub.outputs.aws.s3.namespace_prefix}.applications.minecraft-server"
+    bucket = "${data.terraform_remote_state.hub.outputs.aws.s3.namespace_prefix}.applications.${local.metadata.prefix}"
   }
 }
 

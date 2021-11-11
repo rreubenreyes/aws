@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -15,22 +16,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/bwmarrin/discordgo"
 	"golang.org/x/net/html"
 )
 
 var (
-	url               = os.Getenv("DRAW_URL")
-	participantsTable = os.Getenv("DYNAMODB_TABLE_PARTICIPANTS")
-	discordToken      = os.Getenv("DISCORD_TOKEN")
-	discordChannelId  = os.Getenv("DISCORD_CHANNEL_ID")
+	awsRegion            = os.Getenv("AWS_REGION")
+	url                  = os.Getenv("DRAW_URL")
+	participantsTable    = os.Getenv("DYNAMODB_TABLE_PARTICIPANTS")
+	discordTokenSecretId = os.Getenv("DISCORD_TOKEN_SECRET_ID")
+	discordChannelId     = os.Getenv("DISCORD_CHANNEL_ID")
 )
-
-// utility types
-type Counter struct {
-	Mutex sync.Mutex
-	Value int
-}
 
 // DrawNames types
 type Member struct {
@@ -69,18 +66,20 @@ func DOMQuery(root *html.Node, predicate func(*html.Node) bool) (tags []*html.No
 }
 
 func LatestDrawState() (*DrawState, error) {
+  log.Println("getting draw state")
+
 	var state *DrawState
 	// get the starting page
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("could not get draw page")
+		log.Println("could not get draw page")
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("could not read response from draw page")
+		log.Println("could not read response from draw page")
 		return nil, err
 	}
 
@@ -88,7 +87,7 @@ func LatestDrawState() (*DrawState, error) {
 	htm := string(body)
 	doc, err := html.Parse(strings.NewReader(htm))
 	if err != nil {
-		fmt.Println("could not parse draw page html")
+		log.Println("could not parse draw page html")
 		return nil, err
 	}
 
@@ -125,29 +124,38 @@ func LatestDrawState() (*DrawState, error) {
 	// unmarshal draw state
 	err = json.Unmarshal([]byte(rawState), &state)
 	if err != nil {
-		fmt.Println("could not parse draw state")
+		log.Println("could not parse draw state")
 		return nil, err
 	}
+
+	log.Printf("got draw state %+v\n", state)
 
 	return state, nil
 }
 
 func RemainingParticipants(members []Member) ([]Participant, error) {
-	svc := dynamodb.New(session.New())
+  log.Println("getting remaining participants")
+	svc := dynamodb.New(session.New(&aws.Config{Region: aws.String(awsRegion)}))
 	var m []Member
 	for _, member := range members {
-		if member.DrawViewed {
+		if !member.DrawViewed {
 			m = append(m, member)
 		}
 	}
 
+	log.Printf("getting records for remaining draw members %+v\n", m)
+
 	// get all participants in parallel
 	ret := make(chan Participant)
 	errs := make(chan error)
-	c := Counter{}
+	var wg sync.WaitGroup
 	var participants []Participant
 	for _, member := range m {
-		go func() {
+		wg.Add(1)
+		go func(member Member) {
+			defer wg.Done()
+
+      log.Printf("getting record for %s\n", member.Name)
 			res, err := svc.GetItem(&dynamodb.GetItemInput{
 				TableName: aws.String(participantsTable),
 				Key: map[string]*dynamodb.AttributeValue{
@@ -157,97 +165,113 @@ func RemainingParticipants(members []Member) ([]Participant, error) {
 				},
 			})
 			if err != nil {
-				fmt.Println("could not get participant")
+				log.Println("could not get participant")
 				errs <- err
 			}
 
 			var p Participant
 			err = dynamodbattribute.UnmarshalMap(res.Item, &p)
 			if err != nil {
-				fmt.Println("could not unmarshal participant row")
+				log.Println("could not unmarshal participant row")
 				errs <- err
 			}
 
-			c.Mutex.Lock()
-			c.Value++
-			c.Mutex.Unlock()
+      log.Printf("got participant %+v\n", p)
+
 			ret <- p
-		}()
+		}(member)
 	}
-	select {
-	case value := <-ret:
-		participants = append(participants, value)
-		c.Mutex.Lock()
-		v := c.Value
-		c.Mutex.Unlock()
-		if v > len(participants) {
-			return participants, nil
-		}
-	case err := <-errs:
-		return nil, err
-	}
+
+  go func() {
+    wg.Wait()
+    close(ret)
+    close(errs)
+  }()
+
+  for p := range ret {
+		participants = append(participants, p)
+  }
+  for err := range errs {
+    if err != nil {
+      return nil, err
+    }
+  }
+
+	log.Printf("got participants %s", participants)
 
 	return participants, nil
 }
 
 func SendReminders(participants []Participant) error {
-	sess, err := discordgo.New("Bot " + discordToken)
+	svc := secretsmanager.New(session.New(&aws.Config{Region: aws.String(awsRegion)}))
+	res, err := svc.GetSecretValue(&secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(discordTokenSecretId),
+	})
 	if err != nil {
-		fmt.Println("could not connect to Discord")
+		log.Println("could not get secret")
 		return err
 	}
+
+	log.Printf("got secret %s\n", res.String())
+
+	sess, err := discordgo.New("Bot " + *res.SecretString)
+	if err != nil {
+		log.Println("could not connect to Discord")
+		return err
+	}
+
 	defer sess.Close()
 
+	var wg sync.WaitGroup
 	errs := make(chan error)
-	done := make(chan struct{})
-	c := Counter{}
 	for _, p := range participants {
-		go func() {
+		wg.Add(1)
+		go func(p Participant) {
+			defer wg.Done()
+
 			// TODO: embed a wide photo
 			_, err := sess.ChannelMessageSend(
 				discordChannelId,
 				fmt.Sprintf("hey %s go sign up for secret santa", p.Name),
 			)
 			if err != nil {
-				fmt.Println("could not send message")
+				log.Println("could not send message")
 				errs <- err
 			}
-			c.Mutex.Lock()
-			c.Value++
-			c.Mutex.Unlock()
-			done <- struct{}{}
-		}()
+		}(p)
 	}
-	select {
-	case <-done:
-		c.Mutex.Lock()
-		v := c.Value
-		c.Mutex.Unlock()
-		if v > len(participants) {
-			return nil
-		}
-	case err := <-errs:
-		return err
-	}
+
+  go func() {
+    wg.Wait()
+    close(errs)
+  }()
+
+  for err := range errs {
+    if err != nil {
+      return err
+    }
+  }
 
 	return nil
 }
 
 func remind() error {
+	log.Println("starting")
+
 	state, err := LatestDrawState()
 	if err != nil {
-		fmt.Println("could not get latest draw state")
+		log.Println("could not get latest draw state")
 		return err
 	}
 
 	// TODO: get wide photos
-	participants, err := RemainingParticipants(state.Members)
+	_, err = RemainingParticipants(state.Members)
 	if err != nil {
-		fmt.Println("could not get remaining participants")
+		log.Println("could not get remaining participants")
 		return err
 	}
 
-	err = SendReminders(participants)
+	// SendReminders(participants)
 
 	return nil
 }
