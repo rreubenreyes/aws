@@ -36,9 +36,12 @@ module "remind" {
   s3_prefix   = local.lambda.deployment.s3.prefix
 
   attach_policy_jsons    = true
-  number_of_policy_jsons = 1
+  number_of_policy_jsons = 4
   policy_jsons = [
     data.aws_iam_policy_document.get_participant.json,
+    data.aws_iam_policy_document.list_static_bucket.json,
+    data.aws_iam_policy_document.read_participant_photos.json,
+    data.aws_iam_policy_document.write_participant_photos.json,
   ]
 
   environment_variables = {
@@ -46,5 +49,6 @@ module "remind" {
     DISCORD_TOKEN_SECRET_ID     = aws_secretsmanager_secret.discord_token.id
     DRAW_URL                    = var.draw_url
     DYNAMODB_TABLE_PARTICIPANTS = aws_dynamodb_table.participants.id
+    STATIC_BUCKET_ID            = aws_s3_bucket.static.id
   }
 }

@@ -8,9 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	discordChannelId     = os.Getenv("DISCORD_CHANNEL_ID")
-)
+var discordChannelId = os.Getenv("DISCORD_CHANNEL_ID")
 
 func (p *Participant) SendReminder(sess *discordgo.Session) error {
 	_, err := sess.ChannelMessageSend(

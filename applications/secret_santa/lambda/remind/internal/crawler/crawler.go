@@ -48,6 +48,7 @@ func LatestDrawState(url string) (*DrawState, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("could not get draw page")
+    log.Println(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -55,6 +56,7 @@ func LatestDrawState(url string) (*DrawState, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("could not read response from draw page")
+    log.Println(err)
 		return nil, err
 	}
 
@@ -63,6 +65,7 @@ func LatestDrawState(url string) (*DrawState, error) {
 	doc, err := html.Parse(strings.NewReader(htm))
 	if err != nil {
 		log.Println("could not parse draw page html")
+    log.Println(err)
 		return nil, err
 	}
 
@@ -100,6 +103,7 @@ func LatestDrawState(url string) (*DrawState, error) {
 	err = json.Unmarshal([]byte(rawState), &state)
 	if err != nil {
 		log.Println("could not parse draw state")
+    log.Println(err)
 		return nil, err
 	}
 

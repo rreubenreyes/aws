@@ -9,6 +9,11 @@ resource "aws_s3_bucket" "deployment_artifacts" {
   acl    = "private"
 }
 
+resource "aws_s3_bucket" "static" {
+  bucket = "${local.s3.bucket}.static"
+  acl    = "private"
+}
+
 resource "aws_s3_bucket_public_access_block" "deployment_artifacts" {
   bucket = aws_s3_bucket.deployment_artifacts.id
 

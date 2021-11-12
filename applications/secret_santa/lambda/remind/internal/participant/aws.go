@@ -22,7 +22,7 @@ type Participant struct {
 	PhotoS3Key string `json:"photo_s3_key"`
 }
 
-func FromMember(svc *dynamodb.DynamoDB, m *crawler.Member) (Participant, error) {
+func FromMember(svc *dynamodb.DynamoDB, m crawler.Member) (Participant, error) {
 	var p Participant
 	log.Printf("getting participant from Member %+v\n", m)
 
@@ -37,12 +37,14 @@ func FromMember(svc *dynamodb.DynamoDB, m *crawler.Member) (Participant, error) 
 	})
 	if err != nil {
 		log.Println("could not get participant")
+    log.Println(err)
 		return p, err
 	}
 
 	err = dynamodbattribute.UnmarshalMap(res.Item, &p)
 	if err != nil {
 		log.Println("could not unmarshal participant row")
+    log.Println(err)
 		return p, err
 	}
 
