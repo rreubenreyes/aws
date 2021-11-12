@@ -1,4 +1,4 @@
-module start
+module remind
 
 go 1.16
 
