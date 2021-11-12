@@ -36,12 +36,18 @@ data "terraform_remote_state" "hub" {
 variable "discord_channel_id" {
   description = "Discord channel on which to notify"
   type        = string
-  default = "735641786306920471"
+  default     = "735641786306920471"
 }
 
 variable "draw_url" {
   description = "URL of the DrawNames page"
   type        = string
+}
+
+variable "register_url" {
+  description = "URL to register for the draw"
+  type        = string
+  default     = "https://www.drawnames.com/register/9Y9SLaZFHIF7ttjM8q5k4A-"
 }
 
 locals {
