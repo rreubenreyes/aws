@@ -47,7 +47,7 @@ variable "draw_url" {
 variable "register_url" {
   description = "URL to register for the draw"
   type        = string
-  default     = "https://www.drawnames.com/register/9Y9SLaZFHIF7ttjM8q5k4A-"
+  default     = "https://www.drawnames.com/t/fJpwK4M"
 }
 
 locals {
