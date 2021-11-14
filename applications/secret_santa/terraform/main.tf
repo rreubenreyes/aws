@@ -39,6 +39,11 @@ variable "discord_channel_id" {
   default     = "735641786306920471"
 }
 
+variable "discord_reminder_message" {
+  description = "Reminder message printf template to send on Discord"
+  type        = string
+}
+
 variable "draw_url" {
   description = "URL of the DrawNames page"
   type        = string
