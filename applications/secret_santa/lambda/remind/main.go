@@ -19,11 +19,12 @@ import (
 )
 
 var (
-	awsRegion            = os.Getenv("AWS_REGION")
-	discordChannelId     = os.Getenv("DISCORD_CHANNEL_ID")
-	discordTokenSecretId = os.Getenv("DISCORD_TOKEN_SECRET_ID")
-	url                  = os.Getenv("DRAW_URL")
-	registerUrl          = os.Getenv("REGISTER_URL")
+	awsRegion              = os.Getenv("AWS_REGION")
+	discordChannelId       = os.Getenv("DISCORD_CHANNEL_ID")
+	discordReminderMessage = os.Getenv("DISCORD_REMINDER_MESSAGE")
+	discordTokenSecretId   = os.Getenv("DISCORD_TOKEN_SECRET_ID")
+	url                    = os.Getenv("DRAW_URL")
+	registerUrl            = os.Getenv("REGISTER_URL")
 )
 
 func handler() error {
@@ -90,7 +91,7 @@ func handler() error {
 				Reader:      bytes.NewReader(widened),
 			}
 			_, err = discord.ChannelMessageSendComplex(discordChannelId, &discordgo.MessageSend{
-				Content: fmt.Sprintf("hey <@%s> go sign up for secret santa %s", p.DiscordId, registerUrl),
+				Content: fmt.Sprintf(discordReminderMessage, p.DiscordId, registerUrl),
 				Files:   []*discordgo.File{f},
 			})
 			if err != nil {

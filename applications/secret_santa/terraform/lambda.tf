@@ -35,6 +35,7 @@ module "remind" {
   environment_variables = {
     DISCORD_CHANNEL_ID          = var.discord_channel_id
     DISCORD_TOKEN_SECRET_ID     = aws_secretsmanager_secret.discord_token.id
+    DISCORD_REMINDER_MESSAGE    = var.discord_reminder_message
     DRAW_URL                    = var.draw_url
     DYNAMODB_TABLE_PARTICIPANTS = aws_dynamodb_table.participants.id
     REGISTER_URL                = var.register_url
